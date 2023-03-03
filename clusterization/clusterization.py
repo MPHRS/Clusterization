@@ -33,7 +33,10 @@ def stratification(bonds: List, number_of_beads) -> Dict:
     """ Define claster's id 
     input parametrs
     number_of_beads - number of all beads
-    bonds - list of beads within a radius from each other """
+    bonds - list of beads within a radius from each other 
+    
+    output param
+    Dict  {cluster : list(bead_1, .., bead_n)}"""
     label = dict()        
     for bead in bonds:
       for i in range(len(bead)):
@@ -60,33 +63,24 @@ def stratification(bonds: List, number_of_beads) -> Dict:
                 maximum = max(label[bond[1]],label[bond[0]])
                 cluster[minimum] = cluster[minimum] + cluster[maximum]
                 cluster.pop(maximum)
-    if len(bonds) == 0:
-       counter += 1          
+    counter += 1          
     for i in range(number_of_beads):
       if not i in label:
         cluster[counter] = [i]
         counter += 1  
     return cluster                   
 
-def show_beads(*coords, clusters, radius) -> None:
+def show_beads(*coords, clusters, radius) -> None: 
     """ Crating a plot with bead's clusters in 2D projection
     input parametrs
     *coords - lists coordinates of beads
-    clusters - dictionary with clusters {type : list(beads)}
+    clusters - dictionary with clusters {cluster : list(beads)}
     radius - radius of plot circles """
-    plt.figure(figsize=(9, 9)) 
-    plt.plot(coords[0], coords[1], " ",label="l", color="r")    
-    palitre = [[np.random.random(),np.random.random(),np.random.random()] for _ in clusters]
-    for i in range(1, len(list(clusters.keys())) + 1):
-        color = palitre[i-1]
+    plt.plot(coords[0], coords[1], 'o', color="orange", markersize=radius)
+    for i in clusters.keys():
         for bead in clusters[i]:
-            circles = plt.Circle((x[bead], y[bead]), radius, color=color) 
-            plt.text(x[bead], y[bead], i, fontsize=radius*20,horizontalalignment='center',
-            verticalalignment='center', color="w")
-            plt.gca().add_artist(circles)
-    plt.xlim(min(coords[0])-radius, max(coords[0])+radius)
-    plt.ylim(min(coords[1])-radius, max(coords[1])+radius)
-    plt.grid()
+                plt.text(coords[0][bead], coords[1][bead], str(i), color="black", fontsize=12,horizontalalignment='center',
+                verticalalignment='center')
     plt.show()
 
 if __name__ == '__main__':
@@ -97,11 +91,6 @@ if __name__ == '__main__':
     z = np.random.uniform(-4, 4, N)
     items = list(range(N))
     label = np.zeros(N) 
-    clusters = stratification(neighborhood(x, y, radius = 1.2), N)
+    clusters = stratification(neighborhood(x, y,  radius = 1.2), N)
     print(clusters)
-    show_beads(x, y,  clusters=clusters, radius=0.5 )
-
-    # plt.plot(x, y, 'o', color="orange", markersize=12)
-    # for i in range(len(x)):
-    #     plt.text(x[i], y[i], str(i), color="black", fontsize=12)
-    # plt.show()
+    show_beads(x, y, clusters=clusters, radius=25 )
