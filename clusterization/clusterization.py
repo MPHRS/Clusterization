@@ -67,7 +67,10 @@ def stratification(num_beads: int, bonds: List[Tuple[int]]) -> Dict:
                 minimum = min(label[bond[1]], label[bond[0]])
                 maximum = max(label[bond[1]], label[bond[0]])
                 cluster[minimum] = cluster[minimum] + cluster[maximum]
+                for clust in cluster[maximum]:
+                    label[clust] = minimum
                 cluster.pop(maximum)
+                counter -= 1
     counter = 0
     for clust in cluster:
         counter += 1
@@ -100,12 +103,11 @@ def show_beads(*coords: np.ndarray, clusters: Dict, radius: float) -> None:
 
 if __name__ == '__main__':
     np.random.seed(42)
-    N: Final = 36
-    x = np.random.uniform(-4, 4, N)
-    y = np.random.uniform(-4, 4, N)
-    z = np.random.uniform(-4, 4, N)
-    items = list(range(N))
-    label = np.zeros(N)
-    clusters = stratification(N, neighbourhood(x, y,  radius=1.2))
+    N: Final = 37
+    rnd = 4
+    x = np.random.uniform(-rnd, rnd, N)
+    y = np.random.uniform(-rnd, rnd, N)
+    z = np.random.uniform(-rnd, rnd, N)
+    clusters = stratification(N, neighbourhood(x, y, z, radius=1.2))
     print(clusters)
     show_beads(x, y, clusters=clusters, radius=25)
