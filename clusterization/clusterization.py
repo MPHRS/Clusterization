@@ -1,14 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import (Final, List, Dict, Tuple)
+from typing import (Final, List, Dict, Tuple, Any)
 
 
-def distance(*args: float) -> float:
+def distance(*args: List[Any]) -> float:
     """ Decart distance """
     return np.sqrt(np.sum(np.square(args)))
 
 
-def neighbourhood(*coords: np.ndarray, radius: float) -> List[int]:
+def neighbourhood(*coords: np.ndarray, radius: float) -> List[Tuple[int, int]]:
     """ 
     Return list of neighboring beads 
 
@@ -32,7 +32,7 @@ def neighbourhood(*coords: np.ndarray, radius: float) -> List[int]:
     return bonds
 
 
-def stratification(num_beads: int, bonds: List[Tuple[int]]) -> Dict:
+def stratification(num_beads: int, bonds: List[Tuple[int, int]]) -> Dict:
     """ 
     Define claster's id 
     input:
@@ -42,6 +42,8 @@ def stratification(num_beads: int, bonds: List[Tuple[int]]) -> Dict:
     output:
     Dict{cluster : list(bead_1, .., bead_n)}
     """
+    if num_beads < 0:
+        raise ValueError('num_beads must be more than zero')
     label = dict()
     for bead in bonds:
         for i in range(len(bead)):
@@ -70,16 +72,16 @@ def stratification(num_beads: int, bonds: List[Tuple[int]]) -> Dict:
                 for clust in cluster[maximum]:
                     label[clust] = minimum
                 cluster.pop(maximum)
-                counter -= 1
     counter = 0
+    new_cluster = dict()
     for clust in cluster:
         counter += 1
-        clust = counter
+        new_cluster[counter] = cluster[clust]
     for i in range(num_beads):
         if not (i in label):
             counter += 1
-            cluster[counter] = [i]
-    return cluster
+            new_cluster[counter] = [i]
+    return new_cluster
 
 
 def show_beads(*coords: np.ndarray, clusters: Dict, radius: float) -> None:
@@ -103,11 +105,11 @@ def show_beads(*coords: np.ndarray, clusters: Dict, radius: float) -> None:
 
 if __name__ == '__main__':
     np.random.seed(42)
-    N: Final = 37
+    N: Final = -1
     rnd = 4
     x = np.random.uniform(-rnd, rnd, N)
     y = np.random.uniform(-rnd, rnd, N)
     z = np.random.uniform(-rnd, rnd, N)
-    clusters = stratification(N, neighbourhood(x, y, z, radius=1.2))
+    clusters = stratification(N, neighbourhood(x, y, radius=1.2))
     print(clusters)
     show_beads(x, y, clusters=clusters, radius=25)
